@@ -1,73 +1,95 @@
-import { useEffect, useState } from "react";
-import PostDetails from "../../Components/Post/PostDetails/PostDetails";
-import Posts from "../Posts/Posts"
 import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
 import AddPost from "../../Components/AddPost/AddPost";
+import PostDetails from "../../Components/Post/PostDetails/PostDetails";
+import Posts from "../Posts/Posts";
 
-const Dashboard = () => {
-  const [posts, setPosts] = useState([
-      { id: 1, title: "News", author: "natty" },
-      { id: 2, title: "Sport", author: "mera" },
-      { id: 3, title: "News", author: "mike" }
-    ]);
-  
-  const fetchPosts = () => {
-    axios.get("http://localhost:8080/api/v1/posts")
-    .then(response => {
-      setPosts(response.data)
-      console.log(posts)
-    }).catch(error => {
-      console.log(error.message);
-    })
+
+
+
+export const FetchPostContext = React.createContext();
+function Dashboard() {
+  const [title, setTitle] = useState("");
+
+  const [postData, setPostData] = useState([]);
+
+  const [postDetails, setPostDetails] = useState("");
+
+  const [postId, setPostId] = useState(0);
+
+  const [trackDeleteBtn, setTrackDeleteBtn] = useState(false);
+
+  const titleForm = useRef();
+
+  useEffect(() => {
+    function fetchData() {
+      axios
+        .get("http://localhost:8080/api/v1/posts")
+        .then((response) => setPostData(response.data))
+        .catch(new Error());
+    }
+    fetchData();
+  }, [trackDeleteBtn]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const form = titleForm.current;
+
+    const dataForm = {
+      title: form["title"].value,
+    };
+
+    const copy = [...postData];
+
+    copy[0].title = dataForm.title === "" ? "Happiness" : dataForm.title;
+
+    setPostData(copy);
+    setTitle("");
+  };
+
+  const fetchPostIdWhenClicked = (id) => {
+    let details = postData.filter((post) => post.id === id);
+    setPostId(id);
+    setPostDetails(details);
+  };
+
+  function deletePostById() {
+    axios.delete(`http://localhost:8080/api/v1/posts/${postId}`).then(() => {
+      setTrackDeleteBtn(!trackDeleteBtn);
+      setPostDetails([]);
+    });
   }
 
-  useEffect(()=> {
-    fetchPosts()
-  },[])
-
-const [postDetail, setPostDetail] = useState('');
-
-   const [newTitle, setNewTitle] = useState('');
-    const handleTitleChange = (event) => {
-        //console.log(event.target.value)
-        setNewTitle(event.target.value);
-    }
-
-    
-    const changeTitle = () => {
-        const copyPosts = [...posts];
-        copyPosts[0].title = newTitle;
-        setPosts(copyPosts);
-    }
-
-    const selectedPost = (id) => {
-        setPostDetail(id);
-    }
+  function addPost(post) {
+    // axios.post(`localhost:8080/api/v1/users/${id}/posts`);
+    axios
+      .post(`http://localhost:8080/api/v1/users/1/posts`, post)
+      .then(() => setTrackDeleteBtn(!trackDeleteBtn));
+  }
 
   return (
-    <div>
-        <Posts posts = {posts} selectedPost = {selectedPost}  />
-        <div>
-            <input type= "text" onChange={handleTitleChange}></input>    
-            
-        </div>
-        <br /> 
-        <div>
-          <button type="button" onClick={changeTitle} >Chnage Title</button>
-        </div>
+    // <div>
+    <FetchPostContext.Provider value={fetchPostIdWhenClicked}>
+      <Posts data={postData} />
+
+      <form ref={titleForm} onSubmit={handleSubmit}>
+        <input type="text" label={"title"} name={"title"} />
+        <button>Change Name</button>
+      </form>
 
       <div>
-        <AddPost />
+        <PostDetails
+          postDetails={postDetails}
+          deletePostById={deletePostById}
+        />
       </div>
 
-        <div>
-            <PostDetails postDetail = {postDetail}/>
-        </div>
-
-
-       
-    </div>
-  )
+      <div>
+        <AddPost addPost={addPost} />
+      </div>
+    </FetchPostContext.Provider>
+  );
 }
 
 export default Dashboard;

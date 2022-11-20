@@ -1,62 +1,48 @@
-import axios from 'axios';
-import React, { useRef } from 'react'
-
-function AddPost() {
-    const newPostForm = useRef();
-
-    const postHandler = () => {
-
-        const formPost = newPostForm.current;
-
-        const data = {
-            title : formPost['title'].value,
-            author : formPost['author'].value,
-            content : formPost['content'].value
-        }
-
-        axios.post("http://localhost:8080/api/v1/posts/", data).then(
-            response => {
-                console.log(response)
-            }
-        ).catch(err => {
-            console.log(err)
-        })
-
-    }
+import React, { useRef } from "react";
+import "./AddPost.css";
 
 
+function AddPost(props) {
+  const addPostFormRef = useRef();
 
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    let formData = addPostFormRef.current;
+
+    let newData = {
+      author: formData["author"].value,
+      title: formData["title"].value,
+      content: formData["content"].value,
+    };
+    props.addPost(newData);
+  }
 
   return (
-     <div className="NewProduct">
-         <form ref={newPostForm}>
-
-                <h1>Add a Post</h1>
-
-                <label>Title</label>
-                <input type="text"
-                    label={'title'}
-                    name={'title'}
-                />
-
-                <label>Author</label>
-                <input  type="text"
-                    label={'author'}
-                    name={'author'}
-                />
-
-                <label>Content</label>
-                <input  type="text"
-                    label={'content'}
-                    name={'content'}
-                />
-
-
-
-                </form>
-                <button onClick={postHandler}>Add Post </button>
+    <div>
+      <h2>ADD POST</h2>
+      <form ref={addPostFormRef} onSubmit={handleSubmit}>
+        <div className="div-form">
+          <label>Title: </label>
+          <input type="text" name={"title"} />
         </div>
-  )
+
+        <div className="div-form">
+          <label>Content: </label>
+          <textarea name={"content"} />
+        </div>
+
+        <div className="div-form">
+          <label>Author: </label>
+          <input type="text" name={"author"} />
+        </div>
+
+        <div className="div-form">
+          <button>Submit</button>
+        </div>
+      </form>
+    </div>
+  );
 }
 
-export default AddPost
+export default AddPost;

@@ -1,18 +1,19 @@
-import React from 'react'
+import React, { useContext } from "react";
+import { FetchPostContext } from "../../containers/Dashboard/Dashboard";
 
-const Post = (props) => {
-//    const onClickHandler = (id) => {
-//     console.log(id);
-//     }
+
+function Post(props) {
+  const idFunctionContext = useContext(FetchPostContext);
   return (
-    <div className="Content" onClick={props.selectedPost}>
-            <h1> {props.title}</h1>
-            {/* <h2>{props.selectedPost}</h2> */}
-            <div className="Field">
-                {props.author}
-            </div>
-        </div>
-  )
+    <div
+      style={{ margin: "1.5em" }}
+      onClick={() => idFunctionContext(props.id)}
+    >
+      <p>Id : {props.id}</p>
+      <p>Title: {props.title}</p>
+      <p>Author: {props.author}</p>
+    </div>
+  );
 }
 
-export default Post
+export default Post;

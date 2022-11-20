@@ -1,17 +1,23 @@
-
+import React from "react";
 import Post from "../../Components/Post/Post";
 
-const Posts = (props) => {
-  
+import "./Posts.css";
+
+function Posts({ data }) {
   return (
-    props.posts.map(post => {
-        return(
-             <Post key= {post.id} id = {post.id} title = {post.title} author = {post.author} 
-              selectedPost = {()=>props.selectedPost(post.id)} /> 
-        )
-      
-    })
-  )
+    <div className="details">
+      {data.map((post) => {
+        return (
+          <Post
+            id={post.id}
+            title={post.title}
+            author={post.author}
+            key={post.id}
+          />
+        );
+      })}
+    </div>
+  );
 }
 
-export default Posts
+export default Posts;
